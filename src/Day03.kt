@@ -15,21 +15,17 @@ fun main() {
     }
 
     fun part2(input: String): Int {
-        val total = instrMultRegex.findAll(input).map { it.value }.fold(Pair(0, true)) { acc, instruction ->
-            val (sum, isTurnedOn) = acc
+        val (total, _) = instrMultRegex.findAll(input).map { it.value }.fold(Pair(0, true)) { acc, instruction ->
+            val (sum, on) = acc
 
             when {
                 instruction.startsWith("mul") -> {
-                    if (isTurnedOn) {
-                        val (first, last) = instruction
-                            .split(digitRegex)
-                            .filter { it.isNotBlank() }
-                            .map { it.toInt() }
+                    val (first, last) = instruction
+                        .split(digitRegex)
+                        .filter { it.isNotBlank() }
+                        .map { it.toInt() }
 
-                        Pair(sum + (first * last), true)
-                    } else {
-                        Pair(sum, false)
-                    }
+                    Pair(if (on) sum + (first * last) else sum, on)
                 }
                 instruction.startsWith("don't") -> Pair(sum, false)
                 instruction.startsWith("do") -> Pair(sum, true)
@@ -37,7 +33,7 @@ fun main() {
             }
         }
 
-        return total.first
+        return total
     }
 
     val testInput = readInput("Day03_example")
