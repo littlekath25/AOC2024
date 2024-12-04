@@ -9,7 +9,7 @@ private val INPUT = readInput("Day04")
 private val TEST_INPUT = readInput("Day04_example")
 private val LETTER_GRID = letterGrid(INPUT)
 
-private fun filterOutOneLetter(letter: Char): List<Pair<Char, Coordinate>> {
+private fun getAllCoordsForOneLetter(letter: Char): List<Pair<Char, Coordinate>> {
     return LETTER_GRID.flatMap { line ->
         line.filter { it.first == letter }
     }
@@ -71,7 +71,7 @@ private fun countXmas(coordinates: List<List<Coordinate>>, sort: Boolean, condit
 
 fun main() {
     fun part1(): Int {
-        val allLetterXs = filterOutOneLetter('X')
+        val allLetterXs = getAllCoordsForOneLetter('X')
 
         return allLetterXs.fold(0) { acc, letterX ->
             val coordinates = generateNeighborCoordinates(letterX.second)
@@ -80,7 +80,7 @@ fun main() {
     }
 
     fun part2(): Int {
-        val allLetterAs = filterOutOneLetter('A')
+        val allLetterAs = getAllCoordsForOneLetter('A')
 
         return allLetterAs.fold(0) { acc, letterX ->
             val coordinates = generateXCoordinates(letterX.second)
