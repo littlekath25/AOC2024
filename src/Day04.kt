@@ -73,23 +73,19 @@ fun main() {
     fun part1(): Int {
         val allLetterXs = filterOutOneLetter('X')
 
-        val total = allLetterXs.fold(0) { acc, letterX ->
+        return allLetterXs.fold(0) { acc, letterX ->
             val coordinates = generateNeighborCoordinates(letterX.second)
             acc + countXmas(coordinates, false) { neighbors -> (neighbors.count { it == "MAS"}) }
         }
-
-        return total
     }
 
     fun part2(): Int {
         val allLetterAs = filterOutOneLetter('A')
 
-        val total = allLetterAs.fold(0) { acc, letterX ->
+        return allLetterAs.fold(0) { acc, letterX ->
             val coordinates = generateXCoordinates(letterX.second)
             acc + countXmas(coordinates, true) { neighbors -> (if (neighbors.sorted().count { it == "MS" } == 2) 1 else 0) }
         }
-
-        return total
     }
 
     println("Day 04 - Part one: ${part1()}")
