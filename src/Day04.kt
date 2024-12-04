@@ -7,7 +7,7 @@ private const val yBound = 139
 
 private val INPUT = readInput("Day04")
 private val TEST_INPUT = readInput("Day04_example")
-private val LETTER_GRID = letterMap(INPUT)
+private val LETTER_GRID = letterGrid(INPUT)
 
 private fun filterOutOneLetter(letter: Char): List<Pair<Char, Coordinate>> {
     return LETTER_GRID.flatMap { line ->
@@ -21,7 +21,7 @@ private fun isInBounds(coordinates: List<Coordinate>): Boolean {
     }
 }
 
-private fun letterMap(input: List<String>): LetterGrid{
+private fun letterGrid(input: List<String>): LetterGrid{
     return input.map { line ->
         line.mapIndexed { index, char ->
             Pair(char, Coordinate(input.indexOf(line), index))
@@ -57,12 +57,13 @@ private fun generateXCoordinates(coordinates: Coordinate): List<List<Coordinate>
     )
 }
 
-private fun countXmas(coordinates: List<List<Coordinate>>, condition: (neighbors: List<String>) -> Int): Int {
+private fun countXmas(coordinates: List<List<Coordinate>>, sort: Boolean, condition: (neighbors: List<String>) -> Int): Int {
     val neighbors = coordinates.filter { neighbor ->
         isInBounds(neighbor)
     }
     val neighborLetters = neighbors.map { neighbor ->
-        getLettersForCoordinates(neighbor).joinToString("")
+        val letters = getLettersForCoordinates(neighbor)
+        if (sort) letters.sorted().joinToString("") else letters.joinToString("")
     }
 
     return condition(neighborLetters)
@@ -74,7 +75,7 @@ fun main() {
 
         val total = allLetterXs.fold(0) { acc, letterX ->
             val coordinates = generateNeighborCoordinates(letterX.second)
-            acc + countXmas(coordinates) { neighbors -> (neighbors.count { it == "MAS"}) }
+            acc + countXmas(coordinates, false) { neighbors -> (neighbors.count { it == "MAS"}) }
         }
 
         return total
@@ -85,7 +86,7 @@ fun main() {
 
         val total = allLetterAs.fold(0) { acc, letterX ->
             val coordinates = generateXCoordinates(letterX.second)
-            acc + countXmas(coordinates) { neighbors -> (if (neighbors.count { it == "MS" } == 2) 1 else 0) }
+            acc + countXmas(coordinates, true) { neighbors -> (if (neighbors.sorted().count { it == "MS" } == 2) 1 else 0) }
         }
 
         return total
