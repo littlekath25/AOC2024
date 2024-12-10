@@ -1,13 +1,9 @@
-data class Coordinate(val y: Int, val x: Int )
-
-typealias LetterGrid = List<List<Pair<Char, Coordinate>>>
-
 private const val xBound = 139
 private const val yBound = 139
 
 private val INPUT = readInput("Day04")
 private val TEST_INPUT = readInput("Day04_example")
-private val LETTER_GRID = letterGrid(INPUT)
+private val LETTER_GRID = convertToGrid(INPUT)
 
 private fun getAllCoordsForOneLetter(letter: Char): List<Pair<Char, Coordinate>> {
     return LETTER_GRID.flatMap { line ->
@@ -18,14 +14,6 @@ private fun getAllCoordsForOneLetter(letter: Char): List<Pair<Char, Coordinate>>
 private fun isInBounds(coordinates: List<Coordinate>): Boolean {
     return coordinates.all { coordinate ->
         coordinate.x in 0..xBound && coordinate.y in 0..yBound
-    }
-}
-
-private fun letterGrid(input: List<String>): LetterGrid{
-    return input.map { line ->
-        line.mapIndexed { index, char ->
-            Pair(char, Coordinate(input.indexOf(line), index))
-        }
     }
 }
 
