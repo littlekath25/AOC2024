@@ -1,4 +1,3 @@
-
 private val INPUT = readInput("Day05")
 private val RULES = getRules(INPUT)
 private val RULES_DUO = getRulesDuo(INPUT)

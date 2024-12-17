@@ -22,10 +22,10 @@ fun Any?.println() = println(this)
 /**
  * Converts a map to a list of char and coordinate.
  */
-fun convertToGrid(input: List<String>): LetterGrid{
-    return input.map { line ->
-        line.mapIndexed { index, char ->
-            Pair(char, Coordinate(input.indexOf(line), index))
+fun convertToGrid(input: List<String>): LetterGrid {
+    return input.mapIndexed { y, line ->
+        line.mapIndexed { x, char ->
+            Pair(char, Coordinate(y, x))
         }
     }
 }

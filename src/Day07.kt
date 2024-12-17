@@ -25,6 +25,7 @@ private fun calculate(numbers: List<Long>, operations: List<Operation>, total: L
     return when (operations.first()) {
         Operation.ADD -> calculate(remainingNumbers, remainingOperations, total + number)
         Operation.MULTIPLY -> calculate(remainingNumbers, remainingOperations, total * number)
+        Operation.CONCATENATE -> calculate(remainingNumbers, remainingOperations, "$total$number".toLong())
     }
 }
 
@@ -45,13 +46,8 @@ fun main() {
         return answer
     }
 
-    fun part2(input: List<String>): Int {
-        return input.size
-    }
-
     val testInput = readInput("Day07_example")
 
     val input = readInput("Day07")
-    println("Day 07 - Part one: ${part1(testInput)}")
-//    println("Day 07 - Part two: ${part2(input)}")
+    println("Day 07 - Part one: ${part1(input)}")
 }
