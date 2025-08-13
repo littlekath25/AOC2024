@@ -1,0 +1,226 @@
+---
+services:
+  postgres:
+    container_name: db
+    image: artifactory.flexport.io/docker/postgres:14-alpine
+    ports:
+      # Port 8765 is the default in the NIS template, but this is problematic when running integration tests within
+      # the Docker network. For compatibility reasons we keep it, but we also expose the default port 5432.
+      - "8765:5432"
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+    environment:
+      POSTGRES_USER: develop
+      POSTGRES_PASSWORD: develop_secret
+      POSTGRES_DB: customs_product_service_develop
+    command: "postgres -c wal_level=logical"
+    volumes:
+      - type: bind
+        source: ./docker/init-user-db.sh
+        target: /docker-entrypoint-initdb.d/init-user-db.sh
+
+  # For all Kafka related things (below) please
+  # refer to https://github.com/confluentinc/cp-all-in-one/blob/7.3.1-post/cp-all-in-one/docker-compose.yml
+  # or any future tag of that, for working examples
+  zookeeper:
+    image: artifactory.flexport.io/docker/confluentinc/cp-zookeeper:7.3.1
+    hostname: zookeeper
+    container_name: zookeeper
+    healthcheck:
+      test: nc -z localhost 2181 || exit -1
+      start_period: 15s
+      interval: 20s
+      timeout: 10s
+      retries: 4
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: artifactory.flexport.io/docker/confluentinc/cp-kafka:7.3.1
+    hostname: broker
+    container_name: broker
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+      - "9092:9092"
+    healthcheck:
+      test: kafka-topics --bootstrap-server broker:9092 --list
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+
+  init-kafka-topic:
+    image: artifactory.flexport.io/docker/confluentinc/cp-kafka:7.3.1
+    container_name: init-kafka-topic
+    depends_on:
+      - broker
+    volumes:
+      - "../scripts/create-kafka-topics.sh:/create-kafka-topics.sh"
+    command: sh -c "/create-kafka-topics.sh"
+    environment:
+      BROKER: "broker:29092"
+      TOPICS: "customs-test-topic"
+
+  schema-registry:
+    image: artifactory.flexport.io/docker/confluentinc/cp-schema-registry:7.3.1
+    hostname: schema-registry
+    container_name: schema-registry
+    depends_on:
+      - broker
+    ports:
+      - "8085:8085"
+    healthcheck:
+      test: curl --fail http://localhost:8085 || exit 1
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
+    environment:
+      SCHEMA_REGISTRY_HOST_NAME: schema-registry
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "broker:29092"
+      SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8085
+
+  kafka-connect:
+    container_name: kafka-connect
+    build:
+      dockerfile: "docker/kafka_connect.Dockerfile"
+      context: .
+    ports:
+      - 8083:8083
+      - 5005:5005
+    depends_on:
+      - broker
+      - postgres
+    environment:
+      - BOOTSTRAP_SERVERS=broker:29092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_source_connect_statuses
+
+  #  http://localhost:8092/
+  kafka-ui:
+    container_name: kafka-ui
+    image: artifactory.flexport.io/docker/provectuslabs/kafka-ui:v0.5.0
+    ports:
+      - "8092:8080"
+    depends_on:
+      - schema-registry
+      - broker
+      - kafka-connect
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker:29092
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: local
+      KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
+      KAFKA_CLUSTERS_0_SCHEMAREGISTRY: http://schema-registry:8085
+
+  rest-proxy:
+    image: artifactory.flexport.io/docker/confluentinc/cp-kafka-rest:7.3.1
+    depends_on:
+      - broker
+      - schema-registry
+    ports:
+      - 8082:8082
+    hostname: rest-proxy
+    container_name: rest-proxy
+    environment:
+      KAFKA_REST_HOST_NAME: rest-proxy
+      KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
+      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
+      KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8085'
+
+  mockserver:
+    image: artifactory.flexport.io/docker/mockserver/mockserver:5.14.0
+    ports:
+      - 1080:1080
+    container_name: mockserver
+    environment:
+      MOCKSERVER_WATCH_INITIALIZATION_JSON: "true"
+      MOCKSERVER_PROPERTY_FILE: /config/mockserver.properties
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/initializerJson.json
+    volumes:
+      - type: bind
+        source: ./mockserver
+        target: /config
+
+  server-customs-product-service:
+    build:
+      dockerfile: "docker/Dockerfile"
+      context: .
+    ports:
+      - 8080:8080
+      - 50051:50051
+    depends_on:
+      postgres:
+        condition: service_healthy
+      wiremock:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
+      init-kafka-topic:
+        condition: service_completed_successfully
+    environment:
+      APP_ENVIRONMENT: local
+      DEPLOY_ENV: development
+      POSTGRES_READWRITE_CLUSTER: db
+      POSTGRES_READONLY_CLUSTER: db
+      POSTGRES_MIGRATIONS_CLUSTER: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE: customs_product_service_develop
+      POSTGRES_READWRITE_USERNAME: develop
+      POSTGRES_READWRITE_PASSWORD: develop_secret
+      CORE_HOST: wiremock
+      KAFKA_BROKERS: broker:29092
+      KAFKA_REGISTRY_HOST: schema-registry
+      CORE_GRPC_PORT: 50051
+      # Point external gRPC services to wiremock for Blackbox Integration Testing.
+      # SERVICE_LOOKUP_GRPC_<service_name>: '{"host":"wiremock","port":50051,"tls":false}'
+      # End of template config variables, add your own below.
+    profiles: ["integration-test"]
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/health/readiness"]
+      interval: 1s
+      timeout: 5s
+      retries: 60
+
+  wiremock:
+    image: artifactory.flexport.io/docker/wiremock/wiremock:3.9.2
+    container_name: wiremock
+    entrypoint: ["/docker-entrypoint.sh", "--verbose", "--port", "50051", "--global-response-templating"]
+    ports:
+      - "8888:50051"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:50051/__admin/"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    profiles: ["integration-test"]
+    volumes:
+      # Mount the protobuf descriptors from the stub container into the wiremock container.
+      - "../stub/build/descriptors:/home/wiremock/grpc:ro"
+      # Mount the wiremock extensions from the integration-test container into the wiremock container.
+      - "../integration-test/build/extensions:/var/wiremock/extensions:ro"
+    networks:
+      default:
+        aliases:
+          - core-internal
+          - core_internal

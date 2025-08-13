@@ -1,0 +1,54 @@
+---
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    ignore:
+      # Managed by customs-kotlin-service-full-template
+      - dependency-name: "com.datadoghq:dd-trace-api"
+      - dependency-name: "com.diffplug.spotless"
+      - dependency-name: "com.expediagroup.graphql"
+      - dependency-name: "io.sentry.jvm.gradle"
+      - dependency-name: "nu.studer.jooq"
+      - dependency-name: "org.bouncycastle:bcprov-jdk18on"
+      - dependency-name: "org.jetbrains.kotlin.jvm"
+      - dependency-name: "org.jetbrains.kotlin.plugin.serialization"
+      - dependency-name: "org.flywaydb.flyway"
+      - dependency-name: "org.jetbrains.kotlinx.kover"
+      - dependency-name: "com.flexport.customs.lib:core"
+      - dependency-name: "com.flexport.customs.lib:fid"
+      - dependency-name: "com.flexport.customs.lib:kafka"
+      - dependency-name: "com.flexport.customs.lib:metrics"
+      - dependency-name: "com.flexport.customs.lib:logging"
+      - dependency-name: "com.flexport.customs.lib:patchable"
+      - dependency-name: "com.flexport.customs.lib:core-testing"
+      - dependency-name: "com.flexport.customs.lib:kafka-testing"
+      - dependency-name: "com.flexport.customs.lib:logging-testing"
+      # End from customs-kotlin-service-full-template
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    ignore:
+      # Managed by customs-kotlin-service-full-template
+      - dependency-name: "actions/download-artifact"
+      - dependency-name: "actions/github-script"
+      - dependency-name: "actions/setup-java"
+      - dependency-name: "actions/setup-node"
+      - dependency-name: "actions/setup-python"
+      - dependency-name: "actions/upload-artifact"
+      - dependency-name: "aws-actions/aws-secretsmanager-get-secrets"
+      - dependency-name: "aws-actions/configure-aws-credentials"
+      - dependency-name: "azure/setup-helm"
+      - dependency-name: "docker/login-action"
+      - dependency-name: "dorny/paths-filter"
+      - dependency-name: "github/super-linter"
+      - dependency-name: "helm/chart-testing-action"
+      - dependency-name: "peter-evans/repository-dispatch"
+      # End from customs-kotlin-service-full-template
+  - package-ecosystem: "docker"
+    directory: "server/docker"
+    schedule:
+      interval: "daily"

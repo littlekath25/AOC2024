@@ -1,0 +1,8 @@
+# .git-blame-ignore-revs
+# See https://docs.github.com/en/repositories/working-with-files/using-files/viewing-a-file#ignore-commits-in-the-blame-view
+
+# In order to add a commit, first add its full commit title as a comment, followed by the commit sha.
+# Example entry:
+#
+# # Change formatting from tabs to spaces (#100)
+# 0123546789abcdef0123456789abcdef01234567

@@ -1,0 +1,23 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: customs-product-service
+  description: |
+    A service application that services product related data.
+  annotations:
+    backstage.io/techdocs-ref: "dir:."
+    github.com/project-slug: flexport/customs-product-service
+    flexport.com/template-version: 0.35.1
+  links:
+    - url: https://flexport.atlassian.net/jira/software/c/projects/EUC/boards/3639
+      title: Tickets
+      icon: bugreport
+  tags:
+    - fke
+    - nis
+    - customs-kotlin-template
+spec:
+  type: service
+  lifecycle: production # One of: "experimental", "production" or  "deprecated"
+  owner: customs-clients

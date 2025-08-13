@@ -1,0 +1,19 @@
+---
+extends: default
+rules:
+  document-start:
+    level: warning
+    present: yes
+  empty-lines:
+    max: 2
+    max-start: 0
+    max-end: 1
+  line-length:
+    max: 180
+    allow-non-breakable-words: yes
+  trailing-spaces: disable
+  # Allow github action `on` attribute
+  truthy:
+    allowed-values: ['true', 'false', 'on', 'yes']
+  new-line-at-end-of-file:
+    level: warning

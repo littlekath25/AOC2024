@@ -1,0 +1,12 @@
+---
+# TODO: Update the dockerfile to fix these warning messages from hadolint
+ignored:
+  # https://github.com/hadolint/hadolint/wiki/DL3008
+  # Pin versions in apt-get install.
+  - DL3008
+  # https://github.com/hadolint/hadolint/wiki/DL4006
+  # Set the SHELL option -o pipefail before RUN with a pipe in it
+  - DL4006
+  # https://github.com/hadolint/hadolint/wiki/DL3028
+  # Pin versions in gem install. Instead of gem install <gem> use gem install <gem>:<version>
+  - DL3028

@@ -1,0 +1,31 @@
+{
+  "name": "workflow-scripts",
+  "version": "1.0.0",
+  "main": "find-last-main-run-id.js",
+  "scripts": {
+    "build": "npx tsc --project tsconfig.json"
+  },
+  "keywords": [],
+  "author": "Yunus Gungor <ygungor@flexport.com>",
+  "license": "UNLICENSED",
+  "description": "Typescript scripts for use in Github workflows",
+  "dependencies": {
+    "jacoco-parse": "^2.0.1",
+    "mocha": "^10.3.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "@octokit/plugin-rest-endpoint-methods": "^10.2.0",
+    "@tsconfig/node20": "^20.1.2",
+    "@types/lcov-parse": "^1.0.2",
+    "@types/node": "^20.11.17",
+    "typescript": "^5.3.3"
+  },
+  "overrides": {
+    "mocha": "$mocha",
+    "xml2js": "$xml2js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

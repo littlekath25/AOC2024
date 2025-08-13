@@ -1,0 +1,6 @@
+---
+# This file is for configuration of the sync-to-monorepo action,
+# which sync GraphQL schema changes in source to the dest files in the monorepo.
+flexport/flexport:
+  - source: source/server/schema.graphqls
+    dest: graphql_gateway/schemas/custom/customs-product-service.graphqls

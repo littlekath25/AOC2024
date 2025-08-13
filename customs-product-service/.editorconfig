@@ -1,0 +1,50 @@
+# https://editorconfig.org
+# Based on ktlint .editorconfig: https://github.com/pinterest/ktlint/blob/e7fc7550ac4355ce5d9a93ec0c476687d4be3f15/.editorconfig#L1
+root = true
+
+[*]
+indent_style = space
+indent_size = 2
+tab_width = 2
+
+max_line_length = 120
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.java]
+indent_size = 4
+ij_java_names_count_to_use_import_on_demand = 999
+ij_java_class_count_to_use_import_on_demand = 999
+
+[*.{kt,kts}]
+indent_size = 4
+
+ktlint_code_style = ktlint_official
+ktlint_ignore_back_ticked_identifier = true
+ktlint_standard = enabled
+# TODO: Enable once supported by spotless: https://github.com/diffplug/spotless/issues/1636
+ktlint_experimental = disabled
+
+# Tell IntelliJ about the ktlint defaults
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+ij_kotlin_name_count_to_use_star_import = 2147483647
+ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
+ij_kotlin_packages_to_use_import_on_demand = unset
+
+# Disable ktlint for generated files
+[**/build/**/*.{kt,kts}]
+ktlint_standard = disabled
+ktlint_experimental = disabled
+
+[**/bin/**/*.{kt,kts}]
+ktlint_standard = disabled
+ktlint_experimental = disabled
+
+[*.yaml]
+ij_yaml_spaces_within_brackets = false
+
+[*.xml]
+indent_size = 4

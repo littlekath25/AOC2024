@@ -1,0 +1,12 @@
+---
+customs-clients:
+  - changed-files:
+      - any-glob-to-any-file: '**'
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: '**/*.md'
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**'

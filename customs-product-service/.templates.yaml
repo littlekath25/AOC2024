@@ -1,0 +1,26 @@
+---
+values:
+  repo_access: 'flexport/customs-clients'
+  name: 'customs-product-service'
+  description: 'A service application that services product related data.'
+  team_id: ''
+  owner: 'flexport/customs-clients'
+  owner_email: 'customs-clients-tech-team@flexport.com'
+  owner_org: 'TFS-Customs'
+  template_source: 'flexport/customs-kotlin-service-full-template'
+  template_target: 'flexport/customs-product-service'
+  maven_artifact_id: 'customsproductservice'
+  jira_board_url: |-
+    https://flexport.atlassian.net/jira/software/c/projects/EUC/boards/3639
+  enable_datadog_service_monitors: 'true'
+  stage_eks_cluster_name: 'fke-nonprod-use1-01'
+  prod_eks_cluster_name: 'fke-prod-use1-01'
+  monitoring_slack_channel_name: 'customs-clients-alerts'
+  argocd_appset: 'customs'
+  sentry_dsn: ''
+  enable_feature_graphql: 'true'
+  enable_feature_terraform_core: 'false'
+  enable_staging_env: 'false'
+  enable_feature_kotlin_api: 'false'
+  enable_feature_kotlin_client: 'false'
+  
